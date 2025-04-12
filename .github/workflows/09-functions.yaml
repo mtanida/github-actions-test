@@ -20,4 +20,7 @@ jobs:
     - name: I will execute when cancelled
       if: ${{ cancelled() }}
       run: echo "I will only execute when cancelled."
+    - name: Sleep for 20 seconds
+      run: sleep 20
+
     
