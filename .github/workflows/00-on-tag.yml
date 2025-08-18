@@ -25,6 +25,7 @@ jobs:
       run: uv --version
     - name: Set version in pyproject.toml
       run: |
+        cd pkgs/myproj
         sed -i "s/^version = .*/version = \"${VERSION}\"/" pyproject.toml
     - name: Build package
       run: |
