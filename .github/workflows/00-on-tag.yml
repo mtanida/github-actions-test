@@ -9,34 +9,7 @@ permissions:
   contents: write
 
 jobs:
-  guard:
-    runs-on: ubuntu-latest
-    outputs:
-      should_release: ${{ steps.check.outputs.should_release }}
-    steps:
-    - name: Checkout
-      uses: actions/checkout@v3
-      with:
-        fetch-depth: 0
-    - name: Check if tag is on default branch
-      id: check
-      run: |
-        TAG_COMMIT=$(git rev-list -n 1 ${{ github.ref_name }})
-        DEFAULT_BRANCH=$(git symbolic-ref refs/remotes/origin/HEAD | sed 's@^refs/remotes/origin/@@')
-        BRANCH_COMMIT=$(git rev-parse origin/$DEFAULT_BRANCH)
-
-        echo "Tag commit: $TAG_COMMIT"
-        echo "Default branch ($DEFAULT_BRANCH) commit: $BRANCH_COMMIT"
-
-        if [ "$TAG_COMMIT" = "$BRANCH_COMMIT" ]; then
-          echo "should_release=true" >> $GITHUB_OUTPUT
-        else
-          echo "should_release=false" >> $GITHUB_OUTPUT
-        fi
-
   build-and-release:
-    needs: guard
-    if: needs.guard.outputs.should_release == 'true'
     runs-on: ubuntu-latest
     steps:
     - name: Checkout code
