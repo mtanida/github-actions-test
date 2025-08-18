@@ -4,6 +4,7 @@ on:
   push:
     tags:
       - 'v*.*.*'  # Semantic version tags like v1.2.3
+      - 'v*.*.*-*'  # Semantic version pre-release tags like v1.2.3-beta.3, v1.2.3-dev.11, v1.2.3-alpha.4
 
 permissions:
   contents: write
