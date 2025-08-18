@@ -34,51 +34,30 @@ jobs:
           echo "should_release=false" >> $GITHUB_OUTPUT
         fi
 
-
   build-and-release:
     needs: guard
-    if: needs.guard.outputs.should_continue == 'true'
+    if: needs.guard.outputs.should_release == 'true'
     runs-on: ubuntu-latest
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
-
-   - name: Allow only if tag is reachable from main
-     id: probe
-     run: |
-       git fetch origin main --depth=1
-       TAG="${GITHUB_REF_NAME}"                    # e.g. v1.2.3
-       TAG_SHA="$(git rev-list -n1 "${TAG}^{commit}")"
-       MAIN_SHA="$(git rev-parse origin/main)"
-
-       if git merge-base --is-ancestor "$TAG_SHA" "$MAIN_SHA"; then
-         echo "ok=true" >> "$GITHUB_OUTPUT"        # tag is on main's history
-       else
-         echo "ok=false" >> "$GITHUB_OUTPUT"
-       fi
-
     - name: Extract version from tag
       id: get_version
-      if: steps.probe.outputs.ok == 'true'
       run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_ENV
     - name: Install uv
       run: |
         curl -LsSf https://astral.sh/uv/install.sh | sh
         echo "$HOME/.cargo/bin" >> $GITHUB_PATH
     - name: Verify uv installation
-      if: steps.probe.outputs.ok == 'true'
       run: uv --version
     - name: Set version in pyproject.toml
-      if: steps.probe.outputs.ok == 'true'
       run: |
         sed -i "s/^version = .*/version = \"${VERSION}\"/" pyproject.toml
     - name: Build package
-      if: steps.probe.outputs.ok == 'true'
       run: |
         cd pkgs/myproj
         uv build
     - name: Create GitHub Release and upload artifacts
-      if: steps.probe.outputs.ok == 'true'
       uses: softprops/action-gh-release@v1
       with:
         tag_name: ${{ github.ref_name }}
