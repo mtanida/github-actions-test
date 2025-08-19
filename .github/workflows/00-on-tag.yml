@@ -43,3 +43,11 @@ jobs:
           pkgs/myproj/dist/*.tar.gz
       env:
         GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+
+    - uses: EndBug/add-and-commit@v9
+      with:
+        add: |
+          pkgs/myproj/pyproject.toml
+          pkgs/myproj/uv.lock
+        default_author: user_info
+        message: "ci: update pyproject.toml files"
