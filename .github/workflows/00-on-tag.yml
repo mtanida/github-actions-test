@@ -12,25 +12,50 @@ jobs:
   build-and-release:
     runs-on: ubuntu-latest
     steps:
+    - run: |
+        echo "repo        = ${{ github.repository }}"     # owner/repo
+        echo "owner       = ${{ github.repository_owner }}"
+        echo "ref_name    = ${{ github.ref_name }}"       # e.g. v1.2.3
+        echo "ref_full    = ${{ github.ref }}"            # refs/tags/v1.2.3
+        echo "ref_type    = ${{ github.ref_type }}"       # 'tag'
+        echo "sha         = ${{ github.sha }}"            # commit the tag points to
+
     - name: Checkout code
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Identify base branch
+      run: |
+        # find branch containing the tagged commit
+        BRANCH=$(git branch -r --contains ${{ github.sha }} | grep -v '\->' | head -n1 | sed 's#origin/##')
+        echo "branch=$BRANCH" >> $GITHUB_ENV
+
+    - name: Switch to base branch
+      run: git checkout ${{ env.branch }}
+
     - name: Extract version from tag
       id: get_version
       run: echo "VERSION=${GITHUB_REF_NAME#v}" >> $GITHUB_ENV
+
     - name: Install uv
       run: |
         curl -LsSf https://astral.sh/uv/install.sh | sh
         echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+
     - name: Verify uv installation
       run: uv --version
+
     - name: Set version in pyproject.toml
       run: |
         cd pkgs/myproj
         sed -i "s/^version = .*/version = \"${VERSION}\"/" pyproject.toml
+
     - name: Build package
       run: |
         cd pkgs/myproj
         uv build
+
     - name: Create GitHub Release and upload artifacts
       uses: softprops/action-gh-release@v1
       with:
