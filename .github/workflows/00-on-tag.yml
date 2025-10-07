@@ -49,7 +49,7 @@ jobs:
     - name: Set version in pyproject.toml
       run: |
         cd pkgs/myproj
-        sed -i "s/^version = .*/version = \"${VERSION}\"/" pyproject.toml
+        uv verson ${{ env.VERSION }}
 
     - name: Build package
       run: |
