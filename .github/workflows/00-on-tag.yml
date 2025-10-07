@@ -66,8 +66,6 @@ jobs:
         files: |
           pkgs/myproj/dist/*.whl
           pkgs/myproj/dist/*.tar.gz
-      env:
-        GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
 
     - uses: EndBug/add-and-commit@v9
       with:
