@@ -49,7 +49,7 @@ jobs:
     - name: Set version in pyproject.toml
       run: |
         cd pkgs/myproj
-        uv verson ${{ env.VERSION }}
+        uv version ${{ env.VERSION }}
 
     - name: Build package
       run: |
